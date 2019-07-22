@@ -1,0 +1,37 @@
+library(tm)
+library(wordcloud)
+
+setwd("c:/textmining/")
+
+# LEITURA ARQUIVO PDF
+# uri <- sprintf("file://%s", system.file(file.path("doc", "tm.pdf"), package = "tm"))
+# pdf <- readPDF(control = list(text = "-layout"))(elem = list(uri = uri),language = "en",id = "id1")
+pdf <- readPDF(control = list(text = "-layout"))(elem = list(uri = "Manifestacao da Denunciada.pdf"),language = "en",id = "id1")
+
+# CONTA PALAVRAS
+myCorpus = Corpus(VectorSource(pdf$content))
+# remove punctuation
+myCorpus <- tm_map(myCorpus, removePunctuation)
+# remove numbers
+myCorpus <- tm_map(myCorpus, removeNumbers)
+# remove stopwords
+myCorpus <- tm_map(myCorpus, tolower)
+lista=c("art","caso","atos","ser","sobre","caso","federal","obtenção","deputados","câmara","legislativo","executivo","nacional","poder","resultado","política","qualquer","diante","pode","assim","apenas")
+lista=c(lista,"vez","deve","paulo","tais","somente","país","dessa","sido","desta","assim","desde","segundo","disso","conforme","tal","portanto","ainda","deste","diate","âmbito","nesse","ano")
+lista=c(lista,"ponto","ano","base","nesse","maior","sob","qualquer","ato","além","momento","diante","porque","todas","todos","então","seguintes","especial","quanto","dos")
+lista=c(lista,"presente","vista","durante","preliminar","sentido","politico","apenas","setor","pode","ter","âmbito","item","partir","bem","parte","neste","casa","abertura","congresso")
+lista=c(lista,"senado","poderes","edição","estado","instauração","natureza","forma","presidente","república","processo","união","brasil","ser","parte","nacional","tais","ainda","conforme")
+lista=c(lista,"sra","não","são","união","todo","por","nacional","cada","como","abril","modo","pois","advocaciageral","após","sendo","quais")
+myStopwords=c(stopwords("portuguese"),lista)
+myCorpus <- tm_map(myCorpus, removeWords, myStopwords)
+myCorpus <- tm_map(myCorpus, PlainTextDocument)
+myDTM = TermDocumentMatrix(myCorpus, control = list(minWordLength = 1))
+#myDTM = TermDocumentMatrix(myCorpus, control = list(removePunctuation = TRUE,stopwords = TRUE))
+m = as.matrix(myDTM)
+v = sort(rowSums(m), decreasing = TRUE)
+
+# DESENHA NUVEM
+set.seed(4363)
+wordcloud(names(v), v, min.freq = 30)
+
+
